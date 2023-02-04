@@ -66,7 +66,7 @@ const updateEmployee = () => {
 }
 
 const viewRoles = () => {
-    const sql = `SELECT * FROM role`;
+    const sql = `SELECT r.id, r.title, r.salary, d.name AS department FROM role r LEFT JOIN department d ON r.department_id = d.id;`;
     db.query(sql, (err, result) => {
         if (err) {
             return console.error(error.message);
