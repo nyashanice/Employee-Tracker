@@ -81,7 +81,14 @@ const addRole = () => {
 }
 
 const viewDepartments = () => {
-
+    const sql = `SELECT * FROM department`;
+    db.query(sql, (err, result) => {
+        if (err) {
+            return console.error(error.message);
+        }
+        console.table(result);
+        chooseOption();
+    })
 }
 
 const addDepartment = () => {
