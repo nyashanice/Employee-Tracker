@@ -47,7 +47,14 @@ async function chooseOption() {
 }
 
 const viewEmployees = () => {
-
+    const sql = `SELECT * FROM employee`;
+    db.query(sql, (err, result) => {
+        if (err) {
+            return console.error(error.message);
+        }
+        console.table(result);
+        chooseOption();
+    })
 }
 
 const addEmployee = () => {
