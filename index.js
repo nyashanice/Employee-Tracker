@@ -16,9 +16,9 @@ const db = mysql.createConnection(
     console.log(`Connected to the database.`)
 );
 
-async function chooseOption() {
+const chooseOption = async () => {
     //prompt to do any of the following
-    let answerToInquirer = await inquirer.prompt(questions.menu)
+    let answerToInquirer = await inquirer.prompt(questions.menu[0])
     console.log(answerToInquirer)
     if (answerToInquirer.action === 'View All Employees') {
         viewEmployees()
@@ -47,10 +47,11 @@ async function chooseOption() {
 }
 
 const viewEmployees = () => {
+    // showing up out of order?
     const sql = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ',m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id;`;
     db.query(sql, (err, result) => {
         if (err) {
-            return console.error(error.message);
+            return console.error(err.message);
         }
         console.table(result);
         chooseOption();
@@ -69,7 +70,7 @@ const viewRoles = () => {
     const sql = `SELECT r.id, r.title, r.salary, d.name AS department FROM role r LEFT JOIN department d ON r.department_id = d.id;`;
     db.query(sql, (err, result) => {
         if (err) {
-            return console.error(error.message);
+            return console.error(err.message);
         }
         console.table(result);
         chooseOption();
@@ -84,15 +85,33 @@ const viewDepartments = () => {
     const sql = `SELECT * FROM department`;
     db.query(sql, (err, result) => {
         if (err) {
-            return console.error(error.message);
+            return console.error(err.message);
         }
         console.table(result);
         chooseOption();
     })
 }
 
-const addDepartment = () => {
+const addDepartment = async () => {
+    let answerToInquirer = await inquirer.prompt(questions.menu[1])
+    // console.log(`${answerToInquirer.addDepartment}`);
+    const sql = `INSERT INTO department (name) VALUES (?)`;
+    const params = `${answerToInquirer.addDepartment}`;
 
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            return console.error(err.message)
+        }
+        console.log('Added ' + params + ' to the database');
+        chooseOption();
+    })
+    // const sql2 = `SELECT * FROM department`;
+    // db.query(sql2, (err, result) => {
+    //     if (err) {
+    //         return console.error(err.message)
+    //     }
+    //     console.table(result);
+    // })
 }
 
 const quit = () => {
@@ -101,4 +120,5 @@ const quit = () => {
 
 
 
-chooseOption()
+chooseOption();
+
