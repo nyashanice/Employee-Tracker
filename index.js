@@ -66,7 +66,14 @@ const updateEmployee = () => {
 }
 
 const viewRoles = () => {
-
+    const sql = `SELECT * FROM role`;
+    db.query(sql, (err, result) => {
+        if (err) {
+            return console.error(error.message);
+        }
+        console.table(result);
+        chooseOption();
+    })
 }
 
 const addRole = () => {
