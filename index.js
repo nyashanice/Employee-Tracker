@@ -39,14 +39,30 @@ const viewEmployees = () => {
   });
 };
 
-const addEmployee = async () => {
+const getRoles = async () => {
   const [rows, fields] = await db
     .promise()
-    .query(`SELECT title, id AS value FROM role`);
-  // .query(`SELECT CONCAT(m.first_name, ' ',m.last_name) AS manager, id AS value FROM employee m`);
+    .query(`SELECT title AS name, id as value FROM role`);
+  return rows;
+};
 
-  const newEmployeeData = await inquirer.prompt(questions.addEmployee(rows));
-  console.log(newEmployeeData.first);
+const getManagers = async () => {
+  const [rows, fields] = await db
+    .promise()
+    .query(
+      `SELECT CONCAT(m.first_name, ' ', m.last_name) AS name, id AS value FROM employee m`
+    );
+  return rows;
+};
+
+const addEmployee = async () => {
+  rolesInfo = await getRoles();
+  managerInfo = await getManagers();
+
+  const newEmployeeData = await inquirer.prompt(
+    questions.addEmployee(rolesInfo, managerInfo)
+  );
+  console.log(newEmployeeData);
   const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${newEmployeeData.first}","${newEmployeeData.last}",${newEmployeeData.chooseRole},${newEmployeeData.chooseManager})`;
   db.query(sql, (err, result) => {
     if (err) {
@@ -63,7 +79,32 @@ const addEmployee = async () => {
   });
 };
 
-const updateEmployee = () => {};
+const getEmployees = async () => {
+  const [rows, fields] = await db
+    .promise()
+    .query(
+      `SELECT CONCAT(first_name, ' ',last_name) AS name, id AS value FROM employee`
+    );
+  return rows;
+};
+
+const updateEmployee = async () => {
+  employeeInfo = await getEmployees();
+  rolesInfo = await getRoles();
+
+  const updatedEmployeeData = await inquirer.prompt(
+    questions.updateEmployee(employeeInfo, rolesInfo)
+  );
+  console.log(updatedEmployeeData.chooseEmployee);
+  const sql = `INSERT INTO employee (role_id) VALUES (${updatedEmployeeData.chooseNewRole})`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      return console.error(err.message);
+    }
+    console.log("Updated employee's role");
+    chooseOption();
+  });
+};
 
 const viewRoles = () => {
   const sql = `SELECT r.id, r.title, r.salary, d.name AS department FROM role r LEFT JOIN department d ON r.department_id = d.id;`;

@@ -1,5 +1,5 @@
 const db = require("./config/connection");
-
+let roleChoices;
 // const data = db.query(`SELECT name FROM department`);
 
 const questions = {
